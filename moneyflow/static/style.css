@@ -1,0 +1,167 @@
+html {
+    scroll-behavior: smooth;
+}
+:root {
+  --mf-bg: #F2F0EF;
+  --mf-offwhite: #F2F0EF;
+  --mf-pastel-green: #C1E1C1;
+  --mf-light-green: #88E788;
+  --mf-sage: #889982;
+  --mf-dark-green: #003300;
+  --mf-gray: #E6F0DC;
+}
+
+body {
+  background: var(--mf-bg);
+  color: var(--mf-dark-green);
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+
+.navbar {
+  background: var(--mf-dark-green) !important;
+}
+
+.container, .container-fluid {
+  border-radius: 1.5rem;
+  padding: 2rem 2rem 2rem 2rem;
+}
+
+.card {
+  border-radius: 1.2rem;
+  background: var(--mf-pastel-green);
+  box-shadow: 0 2px 8px rgba(136, 153, 130, 0.08);
+  border: none;
+  margin-bottom: 1.5rem;
+}
+
+.card-title {
+  color: var(--mf-dark-green);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.btn-secondary {
+  border-radius: 2em;
+  font-weight: 300;
+  padding: 0.6em 2em;
+  padding: 0.6em 2em;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-mf {
+  background: #13653f;
+  color: #ffff;
+  border: none;
+  border-radius: 2em;
+  font-weight: 300;
+  padding: 0.6em 2em;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-mf:hover {
+  background: var(--mf-dark-green);
+  color: var(--mf-pastel-green);
+}
+
+/* Table container with rounded corners and pastel border */
+.table-container {
+  background: var(--mf-pastel-green);
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(136, 153, 130, 0.08);
+}
+
+/* Table itself */
+.table {
+  --bs-table-bg: var(--mf-pastel-green);
+  --bs-table-border-color: var(--mf-sage);
+  background: transparent;
+  margin-bottom: 0;
+  
+}
+
+/* Table header */
+.table thead th {
+  background: var(--mf-pastel-green);
+  color: var(--mf-dark-green);
+  font-weight: 700;
+}
+
+/* Table body rows */
+.table tbody tr {
+  background: var(--mf-pastel-green);
+}
+
+/* Zebra striping for alternate rows */
+.table-striped > tbody > tr:nth-of-type(odd)>* {
+  background-color: var(--mf-pastel-green); /* a lighter green or offwhite */
+  --bs-table-bg-type: var(--mf-pastel-green);
+}
+
+/* Remove table borders for a cleaner look */
+.table, .table th, .table td {
+  border-top: none;
+}
+
+.table td:first-child {
+    border-top: none;
+}
+
+/* Remove bottom border from all cells in the last row of the table */
+.table tbody tr:last-child td {
+    border-bottom: none !important;
+}
+
+/* Rounded corners for the first and last row */
+.table tbody tr:first-child td:first-child {
+  border-top-left-radius: 12px;
+}
+.table tbody tr:first-child td:last-child {
+  border-top-right-radius: 12px;
+}
+.table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 12px;
+}
+.table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 12px;
+}
+
+
+.list-group-item {
+  background: var(--mf-pastel-green);
+  color: var(--mf-dark-green);
+  border-color: var(--mf-sage); 
+}
+
+.badge {
+  background: var(--mf-light-green);
+  color: var(--mf-dark-green);
+  font-size: 1em;
+}
+
+h1, h2, h3, h4, h5 {
+  color: var(--mf-dark-green);
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-weight: 700;
+}
+
+a {
+  color: var(--mf-dark-green);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--mf-light-green);
+  text-decoration: underline;
+}
+
+.bg-secondary {
+    font-weight: 300;
+    color: black;
+    background-color: var(--mf-pastel-green) !important;
+}
+
+#intro-block {
+  padding-bottom: 6rem;
+}

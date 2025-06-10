@@ -17,8 +17,8 @@ MoneyFlow is a simple, modern web application for tracking your personal expense
 
 ## Screenshots
 
-![alt text](image.png)
-![alt text](image2.png)
+![alt text](./demo-images/image.png)
+![alt text](./demo-images/image2.png)
 
 ---
 

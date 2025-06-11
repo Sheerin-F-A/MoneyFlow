@@ -16,8 +16,8 @@ def create_app():
     # Remove default handler and add your own
     logger.remove()
     logger.add(sys.stdout, colorize=True, level="INFO")  # Console logs
-    logger.add("moneyflow.log", rotation="10 MB", retention="1 week", level="DEBUG")  # File logs
-    logger.add("errors.log", rotation="10 MB", level="ERROR")  # Only errors to a separate file
+    logger.add(os.path.join(log_dir, "moneyflow.log"), rotation="10 MB", retention="1 week", level="DEBUG")  # File logs
+    logger.add(os.path.join(log_dir, "errors.log"), rotation="10 MB", level="ERROR")  # Only errors to a separate file
 
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'your-very-secret-key-here'

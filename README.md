@@ -1,28 +1,27 @@
 # MoneyFlow: Personal Finance Tracker
 
-MoneyFlow is a simple, modern web application for tracking your personal expenses. Built with Flask, Bootstrap, SQLAlchemy, and Loguru, it helps you record, view, edit, and delete expenses, and provides a summary of your spending habits.
+MoneyFlow is a modern, secure web application for tracking your personal expenses. Built with Flask, Bootstrap, SQLAlchemy, and Loguru, it lets you record, view, edit, and delete expenses, manage your account, and provides a summary of your spending habits.  
+**Each user’s data is private and protected by authentication.**
 
 ---
 
 ## Features
 
-- 📊 **Dashboard:** View total expenses and breakdown by category  
-- ➕ **Add Expenses:** Simple form to log new spending  
-- ✏️ **Edit & Delete:** Update or remove existing expenses  
-- 🔎 **Expense Table:** See all your expenses at a glance  
-- 📝 **Logging:** All actions are logged using Loguru for easy debugging  
+- 🔐 **User Authentication:** Sign up, log in, log out, and update your password
+- 📊 **Dashboard:** View total expenses and breakdown by category
+- ➕ **Add Expenses:** Simple form to log new spending
+- ✏️ **Edit & Delete:** Update or remove your own expenses
+- 🔎 **Expense Table:** See all your expenses at a glance
+- 📝 **Logging:** All actions are logged using Loguru for easy debugging
 - 🎨 **Responsive UI:** Clean Bootstrap interface, works on desktop and mobile
+- 🛡️ **Per-User Data:** Each user only sees and manages their own expenses
+- 🔑 **Secure Configuration:** Secret key loaded from environment variable
 
 ---
 
 ## Screenshots
 
-![alt text](./demo-images/image.png)
-![alt text](./demo-images/image2.png)
-
----
-
-## Getting Started
+![Dashboard](./demo](./demo-images/image2.png](./demo-images/image3.png](./demo-images/image5.png](./demo-images/image6.png](./demo-images/image8.png Started
 
 ### 1. Clone the Repository
 
@@ -44,13 +43,21 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 4. Run the Application
+### 4. Set Up Environment Variables
+
+Create a `.env` file in your project root:
+```
+SECRET_KEY=your-very-secret-key-here
+```
+*(Generate a secure key with `python -c "import secrets; print(secrets.token_hex(32))"`)*
+
+### 5. Run the Application
 
 ```bash
 python app.py
 ```
 
-Visit [http://127.0.0.1:5500](http://127.0.0.1:5500) in your browser.
+Visit [http://127.0.0.1:5000](http://127.0.0.1:5000) in your browser.
 
 ---
 
@@ -61,6 +68,7 @@ MONEYFLOW/
 ├── app.py
 ├── requirements.txt
 ├── README.md
+├── .env
 ├── logs/
 │   ├── moneyflow.log
 │   └── errors.log
@@ -71,7 +79,10 @@ MONEYFLOW/
 │   │   ├── base.html
 │   │   ├── home.html
 │   │   ├── add_expense.html
-│   │   └── edit_expense.html
+│   │   ├── edit_expense.html
+│   │   ├── login.html
+│   │   ├── signup.html
+│   │   └── update_password.html
 │   └── static/
 │       └── style.css
 └── venv/
@@ -83,7 +94,8 @@ MONEYFLOW/
 
 - **Database:** Uses SQLite (`expenses.db`) by default.
 - **Logging:** All logs are written to the `logs/` directory.
-- **Secret Key:** Set in `moneyflow/__init__.py` for session management and flash messages.
+- **Secret Key:** Loaded from `.env` for session management and flash messages.
+- **User Data:** Each user’s expenses are private and secure.
 
 ---
 
@@ -91,6 +103,7 @@ MONEYFLOW/
 
 - To change categories or UI, edit the HTML templates in `moneyflow/templates/`.
 - To adjust logging behavior, modify Loguru settings in `moneyflow/__init__.py`.
+- To use a different database (e.g., PostgreSQL), update the `SQLALCHEMY_DATABASE_URI` in your config.
 
 ---
 
@@ -106,8 +119,15 @@ Pull requests are welcome! For major changes, please open an issue first to disc
 - [Bootstrap](https://getbootstrap.com/)
 - [Loguru](https://loguru.readthedocs.io/)
 - [SQLAlchemy](https://www.sqlalchemy.org/)
+- [python-dotenv](https://pypi.org/project/python-dotenv/)
+- [Werkzeug Security](https://werkzeug.palletsprojects.com/en/2.3.x/utils/)
 
 ---
 
 *Happy tracking!*
 
+---
+
+**Tip:**  
+If deploying to production (Heroku, Vercel, etc.), set your environment variables in the platform’s dashboard for security.  
+For persistent data, use a managed database service instead of local SQLite.

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Profile - MoneyFlow{% endblock %}
+{% block content %}
+<div class="container mt-5" style="max-width: 500px;">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h3 class="mb-4 text-center">User Profile</h3>
+            <form method="POST" enctype="multipart/form-data">
+                <div class="mb-3 text-center">
+                    {% if user.profile_picture %}
+                        <img src="{{ url_for('static', filename='uploads/' ~ user.profile_picture) }}" alt="Profile Picture" class="rounded-circle" width="100">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='default-profile.png') }}" alt="Profile Picture" class="rounded-circle" width="100">
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
+                </div>
+                <div class="mb-3">
+                    <label for="preferences" class="form-label">Preferences</label>
+                    <input type="text" class="form-control" id="preferences" name="preferences" value="{{ user.preferences }}">
+                </div>
+                <div class="mb-3">
+                    <label for="profile_picture" class="form-label">Profile Picture</label>
+                    <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*">
+                </div>
+                <button type="submit" class="btn btn-mf w-100">Update Profile</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -7,8 +7,12 @@ from loguru import logger
 import sys
 import os
 from dotenv import load_dotenv
+from werkzeug.utils import secure_filename
+from itsdangerous import URLSafeTimedSerializer
+from flask_mail import Mail, Message
 
 load_dotenv() 
+mail = Mail()
 
 def create_app():
 
@@ -27,7 +31,16 @@ def create_app():
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///expenses.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['UPLOAD_FOLDER'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'moneyflow', 'static', 'uploads')
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+    app.config['MAIL_SERVER'] = 'sandbox.smtp.mailtrap.io'
+    app.config['MAIL_PORT'] = 587
+    app.config['MAIL_USERNAME'] = '78cf082ad41558'
+    app.config['MAIL_PASSWORD'] = '1e2111c11c2383'
+    app.config['MAIL_USE_TLS'] = True
+    app.config['MAIL_USE_SSL'] = False
 
+    mail.init_app(app)
     db.init_app(app)
 
     def login_required(f):
@@ -147,9 +160,11 @@ def create_app():
             user = User.query.filter_by(username=username).first()
             if user and check_password_hash(user.password, password):
                 session['user_id'] = user.id
+                logger.info(f"Login success: user_id={user.id}, username={user.username}, ip={request.remote_addr}")
                 flash('Logged in successfully!', 'success')
                 return redirect(url_for('home'))
             else:
+                logger.warning(f"Login failed: username={username}, ip={request.remote_addr}")
                 flash('Invalid username or password.', 'danger')
         return render_template('login.html')
 
@@ -159,18 +174,22 @@ def create_app():
             username = request.form['username']
             password = request.form['password']
             if User.query.filter_by(username=username).first():
+                logger.warning(f"Signup failed: username exists ({username}), ip={request.remote_addr}")
                 flash('Username already exists.', 'danger')
             else:
                 hashed_pw = generate_password_hash(password)
                 new_user = User(username=username, password=hashed_pw)
                 db.session.add(new_user)
                 db.session.commit()
+                logger.info(f"Signup success: user_id={new_user.id}, username={username}, ip={request.remote_addr}")
                 flash('Account created! Please log in.', 'success')
                 return redirect(url_for('login'))
         return render_template('signup.html')
 
     @app.route('/logout')
     def logout():
+        user_id = session.get('user_id')
+        logger.info(f"Logout: user_id={user_id}, ip={request.remote_addr}")
         session.pop('user_id', None)
         flash('Logged out.', 'info')
         return redirect(url_for('login'))
@@ -198,6 +217,88 @@ def create_app():
                 return redirect(url_for('home'))
 
         return render_template('update_password.html')
+
+    def allowed_file(filename):
+        return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    
+    @app.route('/profile', methods=['GET', 'POST'])
+    @login_required
+    def profile():
+        user = User.query.get(session['user_id'])
+        if request.method == 'POST':
+            email = request.form.get('email')
+            preferences = request.form.get('preferences')
+            file = request.files.get('profile_picture')
+            logger.info(f"Profile updated: user_id={user.id}, ip={request.remote_addr}")
+            if email:
+                user.email = email
+            if preferences:
+                user.preferences = preferences
+            if file and allowed_file(file.filename):
+                logger.info(f"Profile picture uploaded: user_id={user.id}, filename={file.filename}, ip={request.remote_addr}")
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                user.profile_picture = filename
+            db.session.commit()
+            flash('Profile updated!', 'success')
+            return redirect(url_for('profile'))
+        return render_template('profile.html', user=user)
+    
+
+    # helper to generate tokens
+
+    def generate_reset_token(user_id, expires_sec=3600):
+        s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+        return s.dumps({'user_id': user_id}, salt='password-reset-salt')
+
+    def verify_reset_token(token, expires_sec=3600):
+        s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+        try:
+            user_id = s.loads(token, salt='password-reset-salt', max_age=expires_sec)['user_id']
+        except Exception:
+            return None
+        return User.query.get(user_id)
+    
+    # forgot PASSWORD route
+
+    @app.route('/forgot_password', methods=['GET', 'POST'])
+    def forgot_password():
+        if request.method == 'POST':
+            email = request.form['email']
+            user = User.query.filter_by(email=email).first()
+            if user:
+                logger.info(f"Password reset requested: user_id={user.id}, email={email}, ip={request.remote_addr}")
+                token = generate_reset_token(user.id)
+                reset_url = url_for('reset_password', token=token, _external=True)
+                msg = Message('Password Reset Request',
+                            sender=app.config['MAIL_USERNAME'],
+                            recipients=[user.email])
+                msg.body = f'Reset your password: {reset_url}'
+                mail.send(msg)
+                flash('A password reset link has been sent to your email.', 'info')
+            else:
+                logger.warning(f"Password reset requested for non-existent email: {email}, ip={request.remote_addr}")
+                flash('No user found with that email.', 'danger')
+        return render_template('forgot_password.html')
+    
+    # reset password route:
+
+    @app.route('/reset/<token>', methods=['GET', 'POST'])
+    def reset_password(token):
+        user = verify_reset_token(token)
+        if not user:
+            logger.warning(f"Invalid/expired reset token used, ip={request.remote_addr}")
+            flash('Invalid or expired token.', 'danger')
+            return redirect(url_for('login'))
+        if request.method == 'POST':
+            new_password = request.form['new_password']
+            user.password = generate_password_hash(new_password)
+            db.session.commit()
+            logger.info(f"Password reset successful: user_id={user.id}, ip={request.remote_addr}")
+            flash('Your password has been updated!', 'success')
+            return redirect(url_for('login'))
+        return render_template('reset_password.html')
+
 
 
     return app

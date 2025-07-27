@@ -1,9 +1,15 @@
 #models.py
 
+<<<<<<< HEAD
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
 db = SQLAlchemy()
+=======
+from datetime import datetime
+from sqlalchemy.dialects.mysql import JSON  
+from moneyflow.extensions import db 
+>>>>>>> feature/initial-deliverable-with-user-auth-and-profile
 
 class Expense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -18,7 +24,11 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False) 
     email = db.Column(db.String(120), unique=True)
+<<<<<<< HEAD
     preferences = db.Column(db.String(500))
+=======
+    preferences = db.Column(JSON, nullable=True)
+>>>>>>> feature/initial-deliverable-with-user-auth-and-profile
     profile_picture = db.Column(db.String(200))
     expenses = db.relationship('Expense', backref='user', lazy=True)
     reset_token = db.Column(db.String(100))

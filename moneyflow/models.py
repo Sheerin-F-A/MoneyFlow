@@ -1,9 +1,8 @@
 #models.py
 
-from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-
-db = SQLAlchemy()
+from sqlalchemy.dialects.mysql import JSON  
+from moneyflow.extensions import db 
 
 class Expense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -18,7 +17,7 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False) 
     email = db.Column(db.String(120), unique=True)
-    preferences = db.Column(db.String(500))
+    preferences = db.Column(JSON, nullable=True)
     profile_picture = db.Column(db.String(200))
     expenses = db.relationship('Expense', backref='user', lazy=True)
     reset_token = db.Column(db.String(100))

@@ -1,21 +1,35 @@
 # moneyflow/__init__.py
 from flask import Flask, render_template, redirect, url_for, request, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
-from .models import db, Expense, User
-from datetime import datetime
+from datetime import datetime, date
 from loguru import logger
 import sys
 import os
+import random
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 from itsdangerous import URLSafeTimedSerializer
 from flask_mail import Mail, Message
+from flask_migrate import Migrate       
+from .extensions import db, migrate 
 
 load_dotenv() 
-mail = Mail()
+mail = Mail() 
+
+QUOTES = [
+    "Every penny saved is a penny earned.",
+    "Small steps every day lead to big results.",
+    "Your budget is a reflection of your goals.",
+    "Save money, and money will save you.",
+    "Don’t watch the clock; do what it does. Keep going.",
+    "Dream big, save bigger!",
+    "Financial freedom is a journey, not a destination.",
+    "A goal without a plan is just a wish.",
+    "The best time to start was yesterday. The next best is now.",
+    "Discipline is the bridge between goals and accomplishment.",
+]
 
 def create_app():
-
     # Determine the absolute path to the logs/ directory
     log_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'logs')
     if not os.path.exists(log_dir):
@@ -29,7 +43,7 @@ def create_app():
 
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///expenses.db'
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("MYSQL_URI")
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['UPLOAD_FOLDER'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'moneyflow', 'static', 'uploads')
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
@@ -42,6 +56,10 @@ def create_app():
 
     mail.init_app(app)
     db.init_app(app)
+    migrate.init_app(app, db)    
+
+    from . import models   
+    from .models import Expense, User
 
     def login_required(f):
         from functools import wraps
@@ -63,11 +81,14 @@ def create_app():
         expenses_by_category = {}
         for exp in expenses:
             expenses_by_category[exp.category] = expenses_by_category.get(exp.category, 0) + exp.amount
+        today = date.today().toordinal()
+        quote_of_the_day = QUOTES[today % len(QUOTES)]    
         return render_template(
             'home.html',
             expenses=expenses,
             total_expense=total_expense,
-            expenses_by_category=expenses_by_category
+            expenses_by_category=expenses_by_category,
+            quote_of_the_day=quote_of_the_day
         )
     
     # CREATE
